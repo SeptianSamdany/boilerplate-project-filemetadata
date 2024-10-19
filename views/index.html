@@ -1,34 +1,59 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload and Analysis</title>
+  <link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Upload Your File</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="fileInput" name="upfile" required>
+      <button type="submit">Upload File</button>
+    </form>
 
-<html>
-   <head>
-      <title>File Metadata</title>
-      <link rel="shortcut icon" href="https://cdn.freecodecamp.org/universal/favicons/favicon-32x32.png" type="image/x-icon"/>
-      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-      <link href="/public/style.css" rel="stylesheet" type="text/css">
-   </head>
+    <div id="result" class="hidden">
+      <h2>File Details:</h2>
+      <p><strong>Name:</strong> <span id="fileName"></span></p>
+      <p><strong>Type:</strong> <span id="fileType"></span></p>
+      <p><strong>Size:</strong> <span id="fileSize"></span> bytes</p>
+    </div>
+  </div>
 
-   <body>
-      <div class="container">
-        <h1>API Project: File Metadata Microservice</h1>
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const resultDiv = document.getElementById('result');
+    const fileNameSpan = document.getElementById('fileName');
+    const fileTypeSpan = document.getElementById('fileType');
+    const fileSizeSpan = document.getElementById('fileSize');
 
-        <h2>Usage:</h2>
-        <p>
-          Please Upload a File ...
-        </p>
-        <div class="view">
-          <h3 id="output"></h3>
-          <form enctype="multipart/form-data" method="POST" action="/api/fileanalyse">
-            <input id="inputfield" type="file" name="upfile">
-            <input id="button" type="submit" value="Upload">
-          </form>
-        </div>
-      </div>
-      <div class="footer">
-        <p>
-          by 
-          <a href="http://www.freecodecamp.com">freeCodeCamp</a>
-        </p>
-      </div>
-   </body>
+    uploadForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(uploadForm);
+      try {
+        const response = await fetch('/api/fileanalyse', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          alert(data.error);
+        } else {
+          fileNameSpan.textContent = data.name;
+          fileTypeSpan.textContent = data.type;
+          fileSizeSpan.textContent = data.size;
+          resultDiv.classList.remove('hidden');
+        }
+      } catch (err) {
+        alert('Error uploading file');
+        console.error(err);
+      }
+    });
+  </script>
+</body>
 </html>
